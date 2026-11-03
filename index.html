@@ -234,7 +234,6 @@
   </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.21.0/dist/index.umd.min.js"></script>
 <script>
 const WC_PROJECT_ID = "41c01d7c624d4104f801a71ee73e086f";
 const LP = "0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283";
@@ -313,10 +312,29 @@ async function refresh(){
   loadRank();
 }
 
+const LOG_RPCS = ["https://bsc-dataseed1.binance.org","https://bsc-dataseed.binance.org","https://bsc.publicnode.com","https://bsc.blockpi.network/v1/rpc/public"];
+async function rpcLogs(filter){
+  for (const url of LOG_RPCS){
+    try{
+      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[filter]})});
+      const j = await r.json();
+      if (Array.isArray(j.result)) return j.result;
+    }catch(e){}
+  }
+  throw new Error("logs unavailable");
+}
 async function loadRank(){
   try{
-    const latest = await rpc("eth_blockNumber",[]);
-    const logs = await rpc("eth_getLogs",[{address:LP, fromBlock:"0x"+DEPLOY_BLOCK.toString(16), toBlock:latest, topics:[ASSET_MINTED_TOPIC]}]);
+    const latestHex = await rpc("eth_blockNumber",[]);
+    const latest = parseInt(latestHex,16);
+    const CHUNK = 4000;
+    let logs = [];
+    for (let from = DEPLOY_BLOCK; from <= latest && logs.length < 500; from += CHUNK){
+      const to = Math.min(latest, from + CHUNK - 1);
+      const part = await rpcLogs({address:LP, fromBlock:"0x"+from.toString(16), toBlock:"0x"+to.toString(16), topics:[ASSET_MINTED_TOPIC]});
+      logs = logs.concat(part);
+    }
     const byAddr = {};
     for (const lg of logs){
       const minter = "0x" + lg.topics[2].slice(26);
@@ -337,20 +355,39 @@ async function loadRank(){
   }
 }
 
-let wcProvider = null, activeProvider = null;
+let wcProvider = null, activeProvider = null, wcPromise = null;
 function provider(){ return activeProvider || window.ethereum || null; }
+async function loadWCLib(){
+  const urls = [
+    "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.21.0/+esm",
+    "https://esm.sh/@walletconnect/ethereum-provider@2.21.0",
+    "https://unpkg.com/@walletconnect/ethereum-provider@2.21.0/+esm"
+  ];
+  let lastErr = null;
+  for (const u of urls){
+    try{ const m = await import(u); if (m && m.EthereumProvider) return m.EthereumProvider; }
+    catch(e){ lastErr = e; }
+  }
+  throw new Error("WalletConnect 组件加载失败（网络原因）：" + (lastErr ? lastErr.message : "未知"));
+}
 async function getWC(){
   if (wcProvider) return wcProvider;
-  wcProvider = await window.EthereumProvider.init({
-    projectId: WC_PROJECT_ID, chains: [56], showQrModal: true,
-    qrModalOptions: { themeMode: "dark" },
-    metadata: { name: "牛币 NIUBI", description: "牛币 · Agent ID 铸造",
-      url: location.origin + location.pathname,
-      icons: [location.origin + location.pathname.replace(/[^/]*$/, "") + "mascot.webp"] }
-  });
-  wcProvider.on("accountsChanged", a => { if (a && a[0]){ account = a[0]; onConnected(); } });
-  wcProvider.on("disconnect", () => { account = null; activeProvider = null; });
-  return wcProvider;
+  if (wcPromise) return wcPromise;
+  wcPromise = (async () => {
+    const EthereumProvider = await loadWCLib();
+    wcProvider = await EthereumProvider.init({
+      projectId: WC_PROJECT_ID, chains: [56], optionalChains: [56], showQrModal: true,
+      rpcMap: { 56: "https://bsc-dataseed1.binance.org" },
+      qrModalOptions: { themeMode: "dark" },
+      metadata: { name: "牛币 NIUBI", description: "牛币 · Agent ID 铸造",
+        url: location.origin + location.pathname,
+        icons: [location.origin + location.pathname.replace(/[^/]*$/, "") + "mascot.webp"] }
+    });
+    wcProvider.on("accountsChanged", a => { if (a && a[0]){ account = a[0]; onConnected(); } });
+    wcProvider.on("disconnect", () => { account = null; activeProvider = null; });
+    return wcProvider;
+  })();
+  return wcPromise;
 }
 function onConnected(){
   const label = account.slice(0,6)+"…"+account.slice(-4);
@@ -373,7 +410,7 @@ async function connect(){
     await p.connect();
     account = p.accounts[0]; activeProvider = p;
     onConnected();
-  }catch(e){ $("status").textContent = "连接被取消或失败，请重试。"; }
+  }catch(e){ $("status").textContent = "连接失败：" + ((e && e.message) ? e.message.slice(0,180) : String(e).slice(0,180)); }
 }
 $("connectBtn").onclick = connect;
 $("navConnect").onclick = connect;
