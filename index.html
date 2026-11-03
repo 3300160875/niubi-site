@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>牛币 NIUBI · Agent ID 公平发射</title>
+<meta name="description" content="牛币：基于币安 Agent ID 的公平发射。每人限打 10 份，万份开盘，财库多签，源码全验证。">
+<style>
+  :root{
+    --bg:#0c0a08; --card:#171310; --line:#2b2118; --gold:#f5b942; --red:#e5484d;
+    --txt:#f3e9dc; --dim:#a89880; --green:#3fb96f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6}
+  a{color:var(--gold);text-decoration:none}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  /* hero */
+  .hero{padding:72px 0 48px;text-align:center;background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(245,185,66,.20),transparent 65%)}
+  .bull{font-size:84px;line-height:1;filter:drop-shadow(0 8px 30px rgba(245,185,66,.35))}
+  h1{font-size:64px;letter-spacing:.12em;margin:10px 0 2px;background:linear-gradient(180deg,#ffe9b0,var(--gold) 55%,#b57e1e);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .en{letter-spacing:.55em;color:var(--dim);font-size:13px;text-transform:uppercase}
+  .slogan{margin-top:22px;font-size:22px;font-weight:600}
+  .slogan em{color:var(--gold);font-style:normal}
+  .sub{color:var(--dim);margin-top:10px;font-size:15px}
+  .badges{margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .badge{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;font-size:13px;color:var(--dim)}
+  .badge b{color:var(--gold);font-weight:600}
+  /* mint card */
+  .mint{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;margin:8px 0 28px}
+  .mint h2{font-size:20px;margin-bottom:4px}
+  .mint .tip{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .bar{height:14px;background:#241b12;border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#b57e1e,var(--gold));border-radius:99px;transition:width .8s}
+  .bar-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-top:8px}
+  .bar-meta b{color:var(--txt)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;margin-top:20px}
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .stepper button{width:44px;height:48px;background:#20180f;color:var(--gold);border:0;font-size:22px;cursor:pointer}
+  .stepper .n{width:64px;text-align:center;font-size:18px;font-weight:700}
+  .stepper .n small{display:block;font-size:11px;color:var(--dim);font-weight:400}
+  .cost{flex:1;min-width:130px;border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:13px;color:var(--dim)}
+  .cost b{display:block;color:var(--txt);font-size:17px}
+  .btn{flex:1;min-width:170px;border:0;border-radius:12px;background:linear-gradient(180deg,#ffd97a,var(--gold));color:#241703;font-size:17px;font-weight:800;cursor:pointer;padding:14px 18px;letter-spacing:.06em}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.ghost{background:#20180f;color:var(--gold);border:1px solid var(--line)}
+  .status{margin-top:14px;font-size:13px;color:var(--dim);min-height:20px;word-break:break-all}
+  .status a{color:var(--gold)}
+  /* sections */
+  section{padding:26px 0}
+  h3{font-size:22px;margin-bottom:14px}
+  h3::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--gold);margin-right:10px;vertical-align:3px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card .k{color:var(--dim);font-size:13px}
+  .card .v{font-size:20px;font-weight:700;margin:2px 0}
+  .card .d{color:var(--dim);font-size:13px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .step .no{font-size:26px;font-weight:800;color:var(--gold)}
+  .addr{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .addr .lab{font-size:13px;color:var(--dim);min-width:86px}
+  .addr code{font-size:13px;word-break:break-all;flex:1;font-family:ui-monospace,Menlo,monospace}
+  .copy{border:1px solid var(--line);background:#20180f;color:var(--gold);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer}
+  .risk{border:1px solid #473129;background:#1d1210;border-radius:16px;padding:18px;color:#c9a79b;font-size:13px}
+  footer{padding:34px 0 46px;color:var(--dim);font-size:13px;text-align:center;border-top:1px solid var(--line);margin-top:20px}
+  .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="bull">🐂</div>
+    <h1>牛币</h1>
+    <div class="en">N I U B I</div>
+    <p class="slogan">牛市会迟到，<em>牛币不会缺席。</em></p>
+    <p class="sub">基于币安 Agent ID 的公平发射 · 一人一 ID · 十份封顶 · 万份开盘</p>
+    <div class="badges">
+      <span class="badge">单价 <b>0.002 BNB / 份</b></span>
+      <span class="badge">每份 <b>5,000 万枚</b></span>
+      <span class="badge">每钱包限 <b>10 份</b></span>
+      <span class="badge">源码 <b>Sourcify 全验证</b></span>
+    </div>
+  </div>
+
+  <div class="mint" id="mint">
+    <h2><span class="live"></span>打新进度</h2>
+    <p class="tip">打满 10,000 份自动开盘。开盘前打入的牛币直接进入你的钱包（开盘前不可卖）。</p>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="bar-meta">
+      <span>已打 <b id="minted">—</b> / 10,000 份</span>
+      <span id="openedTag">未开盘</span>
+    </div>
+    <div class="row">
+      <div class="stepper">
+        <button id="minus" aria-label="减少">−</button>
+        <div class="n"><span id="shares">10</span><small>份</small></div>
+        <button id="plus" aria-label="增加">+</button>
+      </div>
+      <div class="cost">预计花费<b id="cost">0.02 BNB</b></div>
+      <button class="btn ghost" id="connectBtn">连接钱包</button>
+      <button class="btn" id="mintBtn" disabled>立即打新</button>
+    </div>
+    <p class="status" id="status">连接持有币安 Agent ID 的钱包即可打新；没有 Agent ID 的钱包会被合约拒绝。</p>
+  </div>
+
+  <section>
+    <h3>怎么打</h3>
+    <div class="steps">
+      <div class="step"><div class="no">01</div><b>先有 Agent ID</b><p class="d" style="color:var(--dim);font-size:14px">在币安 Agentic Wallet 里拥有你的 Agent ID（如 xxx.ai）。这是打新的入场券，也是防女巫的门槛。</p></div>
+      <div class="step"><div class="no">02</div><b>连钱包，选份数</b><p class="d" style="color:var(--dim);font-size:14px">0.002 BNB 一份，每份 5,000 万枚牛币；每个钱包最多 10 份，大户小户同一个起跑线。</p></div>
+      <div class="step"><div class="no">03</div><b>万份到，开盘</b><p class="d" style="color:var(--dim);font-size:14px">第 10,000 份打完自动建池开盘，70% 资金进 LP、30% 进多签财库，全程合约执行，没有人工开关。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>机制，一次说清</h3>
+    <div class="grid">
+      <div class="card"><div class="k">发行方式</div><div class="v">0.002 BNB / 份</div><div class="d">固定价打新，无预售、无白名单、无团队预留。</div></div>
+      <div class="card"><div class="k">开盘条件</div><div class="v">10,000 份</div><div class="d">打满即开盘；总上限 4,440,000 份，开盘后按合约曲线继续发行。</div></div>
+      <div class="card"><div class="k">资金分配</div><div class="v">70% LP · 30% 财库</div><div class="d">财库是 2-of-3 多签 Safe，地址公开，任何人可查。</div></div>
+      <div class="card"><div class="k">交易税</div><div class="v">买 2% · 卖 2%</div><div class="d">其中各 1% 直接销毁、1% 留存合约，通缩写在代码里。</div></div>
+      <div class="card"><div class="k">合约</div><div class="v">源码全验证</div><div class="d">Sourcify exact_match，与链上字节码逐字对应，谁都能审计。</div></div>
+      <div class="card"><div class="k">公平性</div><div class="v">每钱包 ≤ 10 份</div><div class="d">Agent ID 实名到钱包，额度跟着 ID 走，刷量刷不出优势。</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>合约地址</h3>
+    <div class="addr"><span class="lab">铸造合约</span><code>0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283</code><button class="copy" data-c="0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283">复制</button></div>
+    <div class="addr"><span class="lab">牛币代币</span><code>0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb</code><button class="copy" data-c="0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb">复制</button></div>
+    <div class="addr"><span class="lab">财库多签</span><code>0x65a4ddB52EbB2F52B6a5c5240c16cDf8149cA56E</code><button class="copy" data-c="0x65a4ddB52EbB2F52B6a5c5240c16cDf8149cA56E">复制</button></div>
+    <p style="color:var(--dim);font-size:13px">认准以上地址。任何其他地址的“牛币”都是仿盘。</p>
+  </section>
+
+  <section>
+    <div class="risk">
+      <b>风险提示：</b>牛币是社区 meme 代币，价格波动极大，可能归零。打新与交易属于高风险行为，请只用你能承受全部损失的资金参与。本页面不构成任何投资建议（DYOR）。
+    </div>
+  </section>
+
+  <footer>
+    牛币 NIUBI · BSC 主网 · 合约已开源验证<br>
+    牛市未到，牛币先行。
+  </footer>
+</div>
+
+<script>
+const LP = "0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283";
+const TOKEN = "0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb";
+const RPCS = ["https://bsc-dataseed1.binance.org","https://bsc-dataseed.binance.org"];
+const PRICE_PER_SHARE = 0.002; // BNB
+let account = null, shares = 10;
+
+const $ = id => document.getElementById(id);
+const statusEl = $("status");
+function setStatus(html){ statusEl.innerHTML = html; }
+
+async function rpc(method, params){
+  for (const url of RPCS){
+    try{
+      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({jsonrpc:"2.0",id:1,method,params})});
+      const j = await r.json();
+      if (j.result !== undefined) return j.result;
+    }catch(e){}
+  }
+  throw new Error("RPC 不可用");
+}
+const padAddr = a => "000000000000000000000000" + a.replace(/^0x/,"").toLowerCase();
+const word = n => BigInt(n).toString(16).padStart(64,"0");
+
+async function refresh(){
+  try{
+    const tm = await rpc("eth_call",[{to:LP,data:"0xa2309ff8"},"latest"]);
+    const op = await rpc("eth_call",[{to:LP,data:"0x5f88eade"},"latest"]);
+    const minted = parseInt(tm,16);
+    $("minted").textContent = minted.toLocaleString();
+    $("barFill").style.width = Math.min(100, minted/100) + "%";
+    $("openedTag").innerHTML = parseInt(op,16) ? '<b style="color:var(--green)">已开盘</b>' : "未开盘";
+    if (account){
+      const mb = await rpc("eth_call",[{to:LP,data:"0x3cef28d2"+padAddr(account)},"latest"]);
+      const used = parseInt(mb,16);
+      setStatus("已连接 " + account.slice(0,6) + "…" + account.slice(-4) +
+        " ｜ 本钱包已打 <b>" + used + "</b> / 10 份" + (used>=10 ? "（额度已用完）":""));
+      $("mintBtn").disabled = used>=10;
+    }
+  }catch(e){ /* 静默失败，下次轮询再试 */ }
+}
+
+function updateCost(){ $("cost").textContent = (shares*PRICE_PER_SHARE).toFixed(3).replace(/0+$/,"").replace(/\.$/,".0") + " BNB"; $("shares").textContent = shares; }
+$("minus").onclick = ()=>{ shares = Math.max(1, shares-1); updateCost(); };
+$("plus").onclick  = ()=>{ shares = Math.min(10, shares+1); updateCost(); };
+updateCost();
+
+document.querySelectorAll(".copy").forEach(b=>b.onclick=()=>{
+  navigator.clipboard.writeText(b.dataset.c); b.textContent="已复制"; setTimeout(()=>b.textContent="复制",1200);
+});
+
+$("connectBtn").onclick = async ()=>{
+  if (!window.ethereum){ setStatus("没检测到钱包。请用币安 Web3 钱包或 MetaMask 的内置浏览器打开本页。"); return; }
+  try{
+    const accs = await window.ethereum.request({method:"eth_requestAccounts"});
+    account = accs[0];
+    try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}); }catch(e){}
+    $("connectBtn").textContent = account.slice(0,6)+"…"+account.slice(-4);
+    $("mintBtn").disabled = false;
+    refresh();
+  }catch(e){ setStatus("连接被取消。"); }
+};
+
+$("mintBtn").onclick = async ()=>{
+  if (!window.ethereum){ setStatus("请先连接钱包。"); return; }
+  if (!account){ $("connectBtn").click(); return; }
+  try{
+    setStatus("正在向合约询价…");
+    const q = await rpc("eth_call",[{to:LP,data:"0xed1bd76c"+word(shares)},"latest"]);
+    const cost = BigInt(q);
+    const maxCost = cost + cost/50n; // +2% 冗余，超额部分同笔自动退回
+    const minTokens = BigInt(shares) * 50000000n * 10n**18n * 99n / 100n;
+    const data = "0x547c1db9" + word(shares) + padAddr("0x0000000000000000000000000000000000000000")
+               + word(maxCost) + padAddr(TOKEN) + word(minTokens);
+    setStatus("请在钱包里确认交易…");
+    const tx = await window.ethereum.request({method:"eth_sendTransaction",
+      params:[{from:account, to:LP, value:"0x"+maxCost.toString(16), data}]});
+    setStatus("已提交，等待上链：<a target='_blank' href='https://bscscan.com/tx/" + tx + "'>" + tx.slice(0,18) + "…</a>");
+    setTimeout(refresh, 6000);
+  }catch(e){
+    const msg = (e && e.message) ? e.message : String(e);
+    if (/AgentId|agent/i.test(msg)) setStatus("打新失败：这个钱包没有币安 Agent ID，合约已拒绝。");
+    else setStatus("打新失败：" + msg.slice(0,160));
+  }
+};
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
