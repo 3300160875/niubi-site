@@ -312,46 +312,19 @@ async function refresh(){
   loadRank();
 }
 
-const LOG_RPCS = ["https://bsc-dataseed1.binance.org","https://bsc-dataseed.binance.org","https://bsc.publicnode.com","https://bsc.blockpi.network/v1/rpc/public"];
-async function rpcLogs(filter){
-  for (const url of LOG_RPCS){
-    try{
-      const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[filter]})});
-      const j = await r.json();
-      if (Array.isArray(j.result)) return j.result;
-    }catch(e){}
-  }
-  throw new Error("logs unavailable");
-}
 async function loadRank(){
+  // 排行榜需扫描铸造事件日志，但 BSC 免费公共节点不开放日志查询（实测全部拒绝）。
+  // 无铸造时显示空态（即真实状态）；有铸造时如实标注受限，不假装有数据。
   try{
-    const latestHex = await rpc("eth_blockNumber",[]);
-    const latest = parseInt(latestHex,16);
-    const CHUNK = 4000;
-    let logs = [];
-    for (let from = DEPLOY_BLOCK; from <= latest && logs.length < 500; from += CHUNK){
-      const to = Math.min(latest, from + CHUNK - 1);
-      const part = await rpcLogs({address:LP, fromBlock:"0x"+from.toString(16), toBlock:"0x"+to.toString(16), topics:[ASSET_MINTED_TOPIC]});
-      logs = logs.concat(part);
-    }
-    const byAddr = {};
-    for (const lg of logs){
-      const minter = "0x" + lg.topics[2].slice(26);
-      const sh = parseInt(lg.data.slice(2,66),16);
-      byAddr[minter] = (byAddr[minter]||0) + sh;
-    }
-    const rows = Object.entries(byAddr).sort((a,b)=>b[1]-a[1]);
-    $("stHolders").textContent = fmt(rows.length);
-    if (!rows.length){
+    const total = Number(BigInt(await rpc("eth_call",[{to:LP,data:TOTAL_MINTED},"latest"])));
+    if (total === 0){
+      $("stHolders").textContent = "0";
       $("rankBox").innerHTML = '<div class="rank-empty">暂无铸造记录 —— 第一个上榜的，可能就是你。</div>';
       return;
     }
-    let html = "<table><tr><th>排名</th><th>地址</th><th>铸造份数</th></tr>";
-    rows.slice(0,10).forEach((r,i)=>{ html += "<tr><td>" + (i+1) + "</td><td><code>" + r[0].slice(0,8) + "…" + r[0].slice(-6) + "</code></td><td>" + fmt(r[1]) + " 份</td></tr>"; });
-    $("rankBox").innerHTML = html + "</table>";
+    $("rankBox").innerHTML = '<div class="rank-empty">已铸造 ' + fmt(total) + ' 份 · 排行榜数据源暂不可用（公共节点不开放事件日志查询）</div>';
   }catch(e){
-    $("rankBox").innerHTML = '<div class="rank-empty">排行榜加载失败，稍后自动重试。</div>';
+    $("rankBox").innerHTML = '<div class="rank-empty">排行榜暂时无法读取，稍后自动重试。</div>';
   }
 }
 
@@ -407,7 +380,21 @@ async function connect(){
     }
     $("status").textContent = "正在打开 WalletConnect，请用币安钱包扫码或在弹出的列表里选择币安钱包…";
     const p = await getWC();
-    await p.connect();
+    try{
+      await p.connect();
+    }catch(e){
+      const msg = (e && e.message) ? e.message : String(e);
+      if (/reset|expired|modal/i.test(msg)){
+        // 弹窗可能仍开着：不判死刑，改等扫码结果
+        $("status").textContent = "弹窗已打开，请在弹窗里扫码或选择钱包完成连接…";
+        const iv = setInterval(() => {
+          if (p.accounts && p.accounts[0]){ clearInterval(iv); account = p.accounts[0]; activeProvider = p; onConnected(); }
+        }, 2000);
+        setTimeout(() => clearInterval(iv), 180000);
+        return;
+      }
+      throw e;
+    }
     account = p.accounts[0]; activeProvider = p;
     onConnected();
   }catch(e){ $("status").textContent = "连接失败：" + ((e && e.message) ? e.message.slice(0,180) : String(e).slice(0,180)); }
@@ -454,6 +441,8 @@ document.querySelectorAll(".copy").forEach(b=>b.onclick=()=>{
 setShares(10);
 refresh();
 setInterval(refresh, 30000);
+// 无注入钱包时预热 WalletConnect 组件，让点“连接钱包”时弹窗秒开
+if (!window.ethereum) setTimeout(() => { getWC().catch(() => {}); }, 2000);
 </script>
 </body>
 </html>
