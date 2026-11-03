@@ -287,10 +287,12 @@ async function updateFigures(){
 document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>setShares(+c.dataset.n));
 
 async function refresh(){
+  let minted = 0;
   try{
     const tm = await rpc("eth_call",[{to:LP,data:"0xa2309ff8"},"latest"]);
     const op = await rpc("eth_call",[{to:LP,data:"0x5f88eade"},"latest"]);
-    const minted = parseInt(tm,16), opened = parseInt(op,16)===1;
+    minted = parseInt(tm,16);
+    const opened = parseInt(op,16)===1;
     $("stMinted").textContent = fmt(minted);
     $("stRaised").textContent = (minted*0.002).toFixed(2);
     $("stLeft").textContent = opened ? "0" : fmt(Math.max(0, OPEN_UNITS-minted));
@@ -309,14 +311,14 @@ async function refresh(){
         " ｜ 本钱包已铸造 <b>" + used + "</b> / 10 份";
     }
   }catch(e){}
-  loadRank();
+  loadRank(minted);
 }
 
-async function loadRank(){
+async function loadRank(total){
   // 排行榜需扫描铸造事件日志，但 BSC 免费公共节点不开放日志查询（实测全部拒绝）。
+  // 复用 refresh() 已读到的 totalMinted，不再单独发请求（避免公共节点限流误伤）。
   // 无铸造时显示空态（即真实状态）；有铸造时如实标注受限，不假装有数据。
   try{
-    const total = Number(BigInt(await rpc("eth_call",[{to:LP,data:TOTAL_MINTED},"latest"])));
     if (total === 0){
       $("stHolders").textContent = "0";
       $("rankBox").innerHTML = '<div class="rank-empty">暂无铸造记录 —— 第一个上榜的，可能就是你。</div>';
