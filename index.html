@@ -3,141 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>牛币 NIUBI · Agent ID 公平发射</title>
-<meta name="description" content="牛币：基于币安 Agent ID 的公平发射。每人限打 10 份，万份开盘，财库多签，源码全验证。">
+<title>牛币 NIUBI · Agent ID 铸造</title>
+<meta name="description" content="牛币：你的 Agent ID，你的牛币。基于币安 Agent ID 的公平铸造，0.002 BNB/份，每人限 10 份，万份开盘，源码全验证。">
 <style>
   :root{
-    --bg:#0c0a08; --card:#171310; --line:#2b2118; --gold:#f5b942; --red:#e5484d;
-    --txt:#f3e9dc; --dim:#a89880; --green:#3fb96f;
+    --bg:#0b0906; --bg2:#120d08; --card:rgba(30,22,14,.72); --line:#332619;
+    --gold:#f5b942; --gold2:#ffd97a; --red:#e5484d; --txt:#f6ecdc; --dim:#ab987c; --green:#45c26e;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;background:
+    radial-gradient(ellipse 90% 50% at 50% -10%,rgba(245,185,66,.16),transparent 60%),
+    radial-gradient(ellipse 55% 40% at 85% 110%,rgba(229,72,77,.07),transparent 60%);pointer-events:none;z-index:0}
   a{color:var(--gold);text-decoration:none}
-  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(11,9,6,.78);border-bottom:1px solid var(--line)}
+  nav .in{max-width:960px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:.08em}
+  .logo img{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold)}
+  nav .links{margin-left:auto;display:flex;gap:20px;font-size:14px;color:var(--dim)}
+  nav .links a{color:var(--dim)} nav .links a:hover{color:var(--gold)}
+  @media(max-width:640px){nav .links{display:none}}
+  .nbtn{margin-left:auto;border:0;border-radius:10px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#241703;font-weight:800;padding:9px 16px;cursor:pointer;font-size:14px}
+  @media(min-width:641px){.nbtn{margin-left:0}}
+  /* marquee */
+  .mq{border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;white-space:nowrap;padding:8px 0;font-size:13px;letter-spacing:.22em;color:var(--dim)}
+  .mq .track{display:inline-block;animation:mq 30s linear infinite}
+  .mq b{color:var(--gold);font-weight:600}
+  @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   /* hero */
-  .hero{padding:72px 0 48px;text-align:center;background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(245,185,66,.20),transparent 65%)}
-  .bull{font-size:84px;line-height:1;filter:drop-shadow(0 8px 30px rgba(245,185,66,.35))}
-  h1{font-size:64px;letter-spacing:.12em;margin:10px 0 2px;background:linear-gradient(180deg,#ffe9b0,var(--gold) 55%,#b57e1e);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .en{letter-spacing:.55em;color:var(--dim);font-size:13px;text-transform:uppercase}
-  .slogan{margin-top:22px;font-size:22px;font-weight:600}
+  .hero{padding:58px 0 30px;text-align:center}
+  .hero .mascot{width:168px;height:168px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,185,66,.55);box-shadow:0 0 70px rgba(245,185,66,.35),0 18px 50px rgba(0,0,0,.5)}
+  h1{font-size:72px;letter-spacing:.14em;margin:14px 0 0;background:linear-gradient(180deg,#fff3cf,var(--gold) 55%,#a8741a);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.15}
+  .en{letter-spacing:.6em;color:var(--dim);font-size:13px}
+  .slogan{margin-top:20px;font-size:clamp(21px,4.6vw,30px);font-weight:700}
   .slogan em{color:var(--gold);font-style:normal}
-  .sub{color:var(--dim);margin-top:10px;font-size:15px}
-  .badges{margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .badge{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;font-size:13px;color:var(--dim)}
-  .badge b{color:var(--gold);font-weight:600}
+  .sub{color:var(--dim);margin:12px auto 0;max-width:560px;font-size:15px}
+  .stats{margin:30px auto 6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;max-width:760px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px}
+  .stat .v{font-size:21px;font-weight:800;color:var(--gold2)}
+  .stat .k{font-size:12px;color:var(--dim);letter-spacing:.08em}
   /* mint card */
-  .mint{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;margin:8px 0 28px}
-  .mint h2{font-size:20px;margin-bottom:4px}
-  .mint .tip{color:var(--dim);font-size:13px;margin-bottom:18px}
-  .bar{height:14px;background:#241b12;border-radius:99px;overflow:hidden}
-  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#b57e1e,var(--gold));border-radius:99px;transition:width .8s}
-  .bar-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-top:8px}
-  .bar-meta b{color:var(--txt)}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;margin-top:20px}
-  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .stepper button{width:44px;height:48px;background:#20180f;color:var(--gold);border:0;font-size:22px;cursor:pointer}
-  .stepper .n{width:64px;text-align:center;font-size:18px;font-weight:700}
-  .stepper .n small{display:block;font-size:11px;color:var(--dim);font-weight:400}
-  .cost{flex:1;min-width:130px;border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:13px;color:var(--dim)}
-  .cost b{display:block;color:var(--txt);font-size:17px}
-  .btn{flex:1;min-width:170px;border:0;border-radius:12px;background:linear-gradient(180deg,#ffd97a,var(--gold));color:#241703;font-size:17px;font-weight:800;cursor:pointer;padding:14px 18px;letter-spacing:.06em}
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn.ghost{background:#20180f;color:var(--gold);border:1px solid var(--line)}
+  .mint{background:linear-gradient(180deg,rgba(43,31,18,.92),rgba(23,17,11,.94));border:1px solid #4a3517;border-radius:22px;padding:28px;margin:26px 0 10px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  .mint .head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
+  .mint h2{font-size:21px}
+  .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:7px;animation:pl 1.6s infinite;vertical-align:2px}
+  @keyframes pl{0%,100%{opacity:1}50%{opacity:.25}}
+  .tierline{color:var(--dim);font-size:13px}
+  .tierline b{color:var(--gold2)}
+  .bar{height:16px;background:#241a10;border-radius:99px;overflow:hidden;margin-top:14px;border:1px solid #3a2a15}
+  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#b57e1e,var(--gold),var(--gold2));border-radius:99px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .barmeta{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-top:8px;flex-wrap:wrap;gap:4px}
+  .barmeta b{color:var(--txt)}
+  .chips{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;align-items:center}
+  .chip{border:1px solid var(--line);background:#1d150c;color:var(--txt);border-radius:10px;padding:9px 18px;font-size:15px;cursor:pointer}
+  .chip.on{border-color:var(--gold);color:var(--gold2);background:rgba(245,185,66,.10);font-weight:700}
+  .chiprow-lab{color:var(--dim);font-size:13px;margin-right:2px}
+  .figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+  .fig{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:rgba(0,0,0,.22)}
+  .fig .k{font-size:12px;color:var(--dim)}
+  .fig .v{font-size:17px;font-weight:700;word-break:break-all}
+  .fig .v.gold{color:var(--gold2)}
+  .actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+  .btn{flex:1;min-width:180px;border:0;border-radius:13px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#241703;font-size:17px;font-weight:800;cursor:pointer;padding:15px 18px;letter-spacing:.05em;box-shadow:0 10px 26px rgba(245,185,66,.22)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .btn.ghost{background:#20180f;color:var(--gold);border:1px solid var(--line);box-shadow:none}
   .status{margin-top:14px;font-size:13px;color:var(--dim);min-height:20px;word-break:break-all}
-  .status a{color:var(--gold)}
+  .quota{margin-top:10px;font-size:13px;color:var(--dim)}
+  .quota b{color:var(--gold2)}
   /* sections */
-  section{padding:26px 0}
-  h3{font-size:22px;margin-bottom:14px}
-  h3::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--gold);margin-right:10px;vertical-align:3px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-  .card .k{color:var(--dim);font-size:13px}
-  .card .v{font-size:20px;font-weight:700;margin:2px 0}
-  .card .d{color:var(--dim);font-size:13px}
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-  .step .no{font-size:26px;font-weight:800;color:var(--gold)}
+  section{padding:34px 0 6px}
+  .shead{margin-bottom:18px}
+  .shead .tag{font-size:12px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+  .shead h3{font-size:26px;margin-top:4px}
+  .shead p{color:var(--dim);font-size:14px;margin-top:4px;max-width:640px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .card .no{font-size:24px;font-weight:800;color:var(--gold)}
+  .card b.t{display:block;font-size:16px;margin:6px 0 4px}
+  .card p{color:var(--dim);font-size:14px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:14px}
+  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:500;background:rgba(0,0,0,.25)}
+  tr:last-child td{border-bottom:0}
+  .now{color:var(--gold2);font-weight:700}
+  .rank-empty{color:var(--dim);text-align:center;padding:26px;font-size:14px}
+  .steps4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .faq{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--card);overflow:hidden}
+  .faq summary{cursor:pointer;padding:16px 18px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--gold);font-size:20px;font-weight:400}
+  .faq[open ] summary::after{content:"−"}
+  .faq .a{padding:0 18px 16px;color:var(--dim);font-size:14px}
   .addr{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .addr .lab{font-size:13px;color:var(--dim);min-width:86px}
   .addr code{font-size:13px;word-break:break-all;flex:1;font-family:ui-monospace,Menlo,monospace}
   .copy{border:1px solid var(--line);background:#20180f;color:var(--gold);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer}
   .risk{border:1px solid #473129;background:#1d1210;border-radius:16px;padding:18px;color:#c9a79b;font-size:13px}
-  footer{padding:34px 0 46px;color:var(--dim);font-size:13px;text-align:center;border-top:1px solid var(--line);margin-top:20px}
-  .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 1.6s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  footer{padding:36px 0 48px;color:var(--dim);font-size:13px;text-align:center;border-top:1px solid var(--line);margin-top:26px}
 </style>
 </head>
 <body>
-<div class="wrap">
 
+<nav><div class="in">
+  <a class="logo" href="#top"><img src="mascot.webp" alt="牛币">牛币 <span style="color:var(--dim);font-size:12px;letter-spacing:.3em">NIUBI</span></a>
+  <div class="links">
+    <a href="#mint">铸造</a><a href="#mech">机制</a><a href="#tiers">分级</a><a href="#rank">排行</a><a href="#faq">常见问题</a>
+  </div>
+  <button class="nbtn" id="navConnect">连接钱包</button>
+</div></nav>
+
+<div class="mq"><span class="track" id="mqTrack"></span></div>
+
+<div class="wrap" id="top">
   <div class="hero">
-    <div class="bull">🐂</div>
+    <img class="mascot" src="mascot.webp" alt="牛币吉祥物">
     <h1>牛币</h1>
     <div class="en">N I U B I</div>
-    <p class="slogan">牛市会迟到，<em>牛币不会缺席。</em></p>
-    <p class="sub">基于币安 Agent ID 的公平发射 · 一人一 ID · 十份封顶 · 万份开盘</p>
-    <div class="badges">
-      <span class="badge">单价 <b>0.002 BNB / 份</b></span>
-      <span class="badge">每份 <b>5,000 万枚</b></span>
-      <span class="badge">每钱包限 <b>10 份</b></span>
-      <span class="badge">源码 <b>Sourcify 全验证</b></span>
+    <p class="slogan">你的 Agent ID。<em>你的牛币。</em></p>
+    <p class="sub">一只金牛，和一群向前冲的人。连接持有币安 Agent ID 的钱包，选好份额——牛市会迟到，牛币不会缺席。</p>
+    <div class="stats">
+      <div class="stat"><div class="v" id="stMinted">—</div><div class="k">已铸造（份）</div></div>
+      <div class="stat"><div class="v" id="stRaised">—</div><div class="k">已募集（BNB）</div></div>
+      <div class="stat"><div class="v" id="stHolders">—</div><div class="k">参与地址</div></div>
+      <div class="stat"><div class="v" id="stLeft">—</div><div class="k">距开盘还差（份）</div></div>
     </div>
   </div>
 
   <div class="mint" id="mint">
-    <h2><span class="live"></span>打新进度</h2>
-    <p class="tip">打满 10,000 份自动开盘。开盘前打入的牛币直接进入你的钱包（开盘前不可卖）。</p>
+    <div class="head">
+      <h2><span class="live"></span>份额铸造</h2>
+      <span class="tierline">当前档位 <b>第 1 档 · 0.002 BNB</b> ｜ 满 <b>10,000 份</b>自动开盘</span>
+    </div>
     <div class="bar"><i id="barFill"></i></div>
-    <div class="bar-meta">
-      <span>已打 <b id="minted">—</b> / 10,000 份</span>
+    <div class="barmeta">
+      <span>已铸造 <b id="mintedTxt">—</b> / 10,000 份</span>
+      <span id="pctTxt">本档完成 —</span>
       <span id="openedTag">未开盘</span>
     </div>
-    <div class="row">
-      <div class="stepper">
-        <button id="minus" aria-label="减少">−</button>
-        <div class="n"><span id="shares">10</span><small>份</small></div>
-        <button id="plus" aria-label="增加">+</button>
-      </div>
-      <div class="cost">预计花费<b id="cost">0.02 BNB</b></div>
-      <button class="btn ghost" id="connectBtn">连接钱包</button>
-      <button class="btn" id="mintBtn" disabled>立即打新</button>
+
+    <div class="chips">
+      <span class="chiprow-lab">铸造份数</span>
+      <button class="chip" data-n="1">1</button>
+      <button class="chip" data-n="3">3</button>
+      <button class="chip" data-n="5">5</button>
+      <button class="chip on" data-n="10">10</button>
     </div>
-    <p class="status" id="status">连接持有币安 Agent ID 的钱包即可打新；没有 Agent ID 的钱包会被合约拒绝。</p>
+
+    <div class="figures">
+      <div class="fig"><div class="k">铸造单价</div><div class="v" id="unitPrice">0.002 BNB</div></div>
+      <div class="fig"><div class="k">总计</div><div class="v" id="totalCost">0.02 BNB</div></div>
+      <div class="fig"><div class="k">你将获得</div><div class="v gold" id="receive">500,000,000 牛币</div></div>
+      <div class="fig"><div class="k">我的牛币余额</div><div class="v" id="myBal">连接后显示</div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="connectBtn">连接钱包</button>
+      <button class="btn" id="mintBtn" disabled>连接后验证 Agent ID 铸造</button>
+    </div>
+    <p class="status" id="status">连接持有币安 Agent ID 的 Binance Agentic Wallet 即可铸造；没有 Agent ID 的钱包会被合约直接拒绝。</p>
+    <p class="quota">每个 Agent ID 基础额度 <b>10 份</b> ｜ <a href="#" id="copyInvite">复制邀请链接</a><span id="refNote"></span></p>
   </div>
 
-  <section>
-    <h3>怎么打</h3>
-    <div class="steps">
-      <div class="step"><div class="no">01</div><b>先有 Agent ID</b><p class="d" style="color:var(--dim);font-size:14px">在币安 Agentic Wallet 里拥有你的 Agent ID（如 xxx.ai）。这是打新的入场券，也是防女巫的门槛。</p></div>
-      <div class="step"><div class="no">02</div><b>连钱包，选份数</b><p class="d" style="color:var(--dim);font-size:14px">0.002 BNB 一份，每份 5,000 万枚牛币；每个钱包最多 10 份，大户小户同一个起跑线。</p></div>
-      <div class="step"><div class="no">03</div><b>万份到，开盘</b><p class="d" style="color:var(--dim);font-size:14px">第 10,000 份打完自动建池开盘，70% 资金进 LP、30% 进多签财库，全程合约执行，没有人工开关。</p></div>
-    </div>
-  </section>
-
-  <section>
-    <h3>机制，一次说清</h3>
+  <section id="mech">
+    <div class="shead"><div class="tag">Mechanics</div><h3>牛币运作机制</h3><p>规则不藏在角落：价格、额度、资金去向，全部写在已验证的合约里。</p></div>
     <div class="grid">
-      <div class="card"><div class="k">发行方式</div><div class="v">0.002 BNB / 份</div><div class="d">固定价打新，无预售、无白名单、无团队预留。</div></div>
-      <div class="card"><div class="k">开盘条件</div><div class="v">10,000 份</div><div class="d">打满即开盘；总上限 4,440,000 份，开盘后按合约曲线继续发行。</div></div>
-      <div class="card"><div class="k">资金分配</div><div class="v">70% LP · 30% 财库</div><div class="d">财库是 2-of-3 多签 Safe，地址公开，任何人可查。</div></div>
-      <div class="card"><div class="k">交易税</div><div class="v">买 2% · 卖 2%</div><div class="d">其中各 1% 直接销毁、1% 留存合约，通缩写在代码里。</div></div>
-      <div class="card"><div class="k">合约</div><div class="v">源码全验证</div><div class="d">Sourcify exact_match，与链上字节码逐字对应，谁都能审计。</div></div>
-      <div class="card"><div class="k">公平性</div><div class="v">每钱包 ≤ 10 份</div><div class="d">Agent ID 实名到钱包，额度跟着 ID 走，刷量刷不出优势。</div></div>
+      <div class="card"><div class="no">01</div><b class="t">验证 Agent ID</b><p>连接持有币安 Agent ID 的 Agentic Wallet。ID 就是入场券，也是防女巫的门槛——额度跟着 ID 走。</p></div>
+      <div class="card"><div class="no">02</div><b class="t">铸造 · 明码标价</b><p>基础价 0.002 BNB / 份，每份 5,000 万枚牛币。每个钱包最多 10 份，大户小户同一条起跑线。</p></div>
+      <div class="card"><div class="no">03</div><b class="t">开盘 · 自动执行</b><p>累计满 10,000 份自动建池开盘。每笔铸造资金 70% 进流动性池、30% 进 2-of-3 多签财库，全程合约执行。</p></div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div class="card"><div class="no">%</div><b class="t">交易税 2% / 2%</b><p>买入、卖出各 2%：其中 1% 直接销毁（通缩写进代码）、1% 留存合约。</p></div>
+      <div class="card"><div class="no">🔐</div><b class="t">财库多签</b><p>财库是 Safe 2-of-3 多签钱包，地址公开，任何一笔动账都要至少 2 名成员签名。</p></div>
+      <div class="card"><div class="no">✓</div><b class="t">源码全验证</b><p>Sourcify exact_match：链上字节码与公开源码逐字对应，谁都能审计，没有后门可藏。</p></div>
     </div>
   </section>
 
-  <section>
-    <h3>合约地址</h3>
+  <section id="tiers">
+    <div class="shead"><div class="tag">Tiers</div><h3>铸造分级</h3><p>共 353 个档位。前 10,000 份为基础档 0.002 BNB，此后逐档递增，直到总上限 4,440,000 份。开盘后仍可继续铸造。</p></div>
+    <table>
+      <tr><th>档位</th><th>份额区间</th><th>单价</th><th>状态</th></tr>
+      <tr><td>第 1 档</td><td>1 – 10,000 份</td><td>0.002 BNB</td><td class="now">● 当前</td></tr>
+      <tr><td>第 2 档起</td><td>10,001 份以后</td><td>逐档递增</td><td>待解锁</td></tr>
+      <tr><td>最高档</td><td>至 4,440,000 份</td><td>约 0.01614 BNB</td><td>—</td></tr>
+    </table>
+  </section>
+
+  <section id="rank">
+    <div class="shead"><div class="tag">Leaderboard</div><h3>Agent 排行</h3><p>按铸造份数排名，数据实时来自链上事件。第一个上榜的，可能就是你。</p></div>
+    <div id="rankBox"><div class="rank-empty">正在加载链上数据…</div></div>
+  </section>
+
+  <section id="journey">
+    <div class="shead"><div class="tag">Journey</div><h3>从 ID 到市场</h3><p>四个步骤，一起向前冲。</p></div>
+    <div class="steps4">
+      <div class="card"><div class="no">1</div><b class="t">连接</b><p>打开 Binance Agentic Wallet，连接已验证的 Agent ID 地址。</p></div>
+      <div class="card"><div class="no">2</div><b class="t">铸造</b><p>确认当前档位，在 10 份额度内选好你的份数。</p></div>
+      <div class="card"><div class="no">3</div><b class="t">成长</b><p>邀请你的 Agent 伙伴，社区一起把进度推向开盘。</p></div>
+      <div class="card"><div class="no">4</div><b class="t">开盘</b><p>满 10,000 份自动开放交易，牛币正式进市场。</p></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="shead"><div class="tag">FAQ</div><h3>常见问题</h3></div>
+    <details class="faq"><summary>谁可以铸造？</summary><div class="a">持有币安 Agent ID 的钱包。铸造时合约会当场验证你的 ID，没有 ID 的钱包调用会被直接拒绝。</div></details>
+    <details class="faq"><summary>基础价格是多少？</summary><div class="a">0.002 BNB / 份，每份 5,000 万枚牛币。前 10,000 份都是这个价，之后进入分级曲线逐档递增。</div></details>
+    <details class="faq"><summary>何时开放交易？</summary><div class="a">累计铸造满 10,000 份时，合约自动用 70% 的资金建立 PancakeSwap 流动性池并开放交易，没有人工开关。铸造的牛币在开盘前就进入你的钱包，但开盘前不可转账、不可卖。</div></details>
+    <details class="faq"><summary>每个钱包能打多少？</summary><div class="a">基础额度 10 份 / 钱包（按 Agent ID 计）。这是刻意的公平设计：不让大户包场。</div></details>
+    <details class="faq"><summary>财库的钱归谁管？</summary><div class="a">每笔铸造的 30% 进入 Safe 2-of-3 多签财库（地址见下方），动账需要至少 2 名成员签名，链上全程可查。</div></details>
+    <details class="faq"><summary>这是投资建议吗？</summary><div class="a">不是。牛币是社区 meme 代币，波动极大、可能归零。本页只陈述合约机制，不构成任何投资建议。</div></details>
+  </section>
+
+  <section id="ca">
+    <div class="shead"><div class="tag">Contracts</div><h3>合约地址</h3></div>
     <div class="addr"><span class="lab">铸造合约</span><code>0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283</code><button class="copy" data-c="0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283">复制</button></div>
     <div class="addr"><span class="lab">牛币代币</span><code>0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb</code><button class="copy" data-c="0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb">复制</button></div>
     <div class="addr"><span class="lab">财库多签</span><code>0x65a4ddB52EbB2F52B6a5c5240c16cDf8149cA56E</code><button class="copy" data-c="0x65a4ddB52EbB2F52B6a5c5240c16cDf8149cA56E">复制</button></div>
-    <p style="color:var(--dim);font-size:13px">认准以上地址。任何其他地址的“牛币”都是仿盘。</p>
+    <p style="color:var(--dim);font-size:13px">在 <a target="_blank" href="https://bscscan.com/address/0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283">BscScan</a> 与 <a target="_blank" href="https://sourcify.dev/#/lookup/0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283">Sourcify</a> 均可查验。认准以上地址，其他“牛币”都是仿盘。</p>
   </section>
 
   <section>
-    <div class="risk">
-      <b>风险提示：</b>牛币是社区 meme 代币，价格波动极大，可能归零。打新与交易属于高风险行为，请只用你能承受全部损失的资金参与。本页面不构成任何投资建议（DYOR）。
-    </div>
+    <div class="risk"><b>风险提示：</b>牛币是社区 meme 代币，价格波动极大，可能归零。铸造与交易属于高风险行为，请只用你能承受全部损失的资金参与。本页面不构成任何投资建议（DYOR）。</div>
   </section>
 
   <footer>
@@ -150,12 +238,19 @@
 const LP = "0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283";
 const TOKEN = "0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb";
 const RPCS = ["https://bsc-dataseed1.binance.org","https://bsc-dataseed.binance.org"];
-const PRICE_PER_SHARE = 0.002; // BNB
+const DEPLOY_BLOCK = 131428558;
+const ASSET_MINTED_TOPIC = "0xe264b701fab65f421a6ae7695e198003fa0203a6b670c88e1a4c1f570d81b24f";
+const OPEN_UNITS = 10000;
 let account = null, shares = 10;
 
 const $ = id => document.getElementById(id);
-const statusEl = $("status");
-function setStatus(html){ statusEl.innerHTML = html; }
+const mqTxt = "牛币 NIUBI ✦ <b>AGENT ID 铸造</b> ✦ BNB 智能链 ✦ <b>0.002 BNB</b> ✦ 70% 流动性 ✦ 30% 多签财库 ✦ <b>每人限 10 份</b> ✦ 源码全验证 ✦ ";
+$("mqTrack").innerHTML = mqTxt + mqTxt + mqTxt + mqTxt;
+
+const refParam = new URLSearchParams(location.search).get("ref");
+const referrer = (refParam && /^0x[0-9a-fA-F]{40}$/.test(refParam)) ? refParam : "0x0000000000000000000000000000000000000000";
+if (referrer !== "0x0000000000000000000000000000000000000000")
+  $("refNote").textContent = " ｜ 已通过邀请链接进入（邀请人 " + referrer.slice(0,6) + "…" + referrer.slice(-4) + "）";
 
 async function rpc(method, params){
   for (const url of RPCS){
@@ -170,69 +265,128 @@ async function rpc(method, params){
 }
 const padAddr = a => "000000000000000000000000" + a.replace(/^0x/,"").toLowerCase();
 const word = n => BigInt(n).toString(16).padStart(64,"0");
+const fmt = n => Number(n).toLocaleString("en-US");
+
+function setShares(n){
+  shares = Math.max(1, Math.min(10, n));
+  document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on", +c.dataset.n===shares));
+  updateFigures();
+}
+async function updateFigures(){
+  try{
+    const q = await rpc("eth_call",[{to:LP,data:"0xed1bd76c"+word(shares)},"latest"]);
+    const cost = Number(BigInt(q))/1e18;
+    $("totalCost").textContent = cost.toFixed(4).replace(/0+$/,"").replace(/\.$/,".0") + " BNB";
+    $("unitPrice").textContent = (cost/shares).toFixed(4) + " BNB";
+    const qt = await rpc("eth_call",[{to:LP,data:"0xbd139e86"+word(shares)},"latest"]);
+    const toks = Number(BigInt(qt)/10n**14n)/10000;
+    $("receive").textContent = fmt(Math.round(toks)) + " 牛币";
+  }catch(e){}
+}
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>setShares(+c.dataset.n));
 
 async function refresh(){
   try{
     const tm = await rpc("eth_call",[{to:LP,data:"0xa2309ff8"},"latest"]);
     const op = await rpc("eth_call",[{to:LP,data:"0x5f88eade"},"latest"]);
-    const minted = parseInt(tm,16);
-    $("minted").textContent = minted.toLocaleString();
-    $("barFill").style.width = Math.min(100, minted/100) + "%";
-    $("openedTag").innerHTML = parseInt(op,16) ? '<b style="color:var(--green)">已开盘</b>' : "未开盘";
+    const minted = parseInt(tm,16), opened = parseInt(op,16)===1;
+    $("stMinted").textContent = fmt(minted);
+    $("stRaised").textContent = (minted*0.002).toFixed(2);
+    $("stLeft").textContent = opened ? "0" : fmt(Math.max(0, OPEN_UNITS-minted));
+    $("mintedTxt").textContent = fmt(minted);
+    $("barFill").style.width = Math.min(100, minted/OPEN_UNITS*100) + "%";
+    $("pctTxt").textContent = "本档完成 " + (minted/OPEN_UNITS*100).toFixed(1) + "%";
+    $("openedTag").innerHTML = opened ? '<b style="color:var(--green)">已开盘</b>' : "未开盘";
     if (account){
       const mb = await rpc("eth_call",[{to:LP,data:"0x3cef28d2"+padAddr(account)},"latest"]);
       const used = parseInt(mb,16);
-      setStatus("已连接 " + account.slice(0,6) + "…" + account.slice(-4) +
-        " ｜ 本钱包已打 <b>" + used + "</b> / 10 份" + (used>=10 ? "（额度已用完）":""));
+      const bal = await rpc("eth_call",[{to:TOKEN,data:"0x70a08231"+padAddr(account)},"latest"]);
+      $("myBal").textContent = fmt(Math.round(Number(BigInt(bal)/10n**14n)/10000)) + " 牛币";
       $("mintBtn").disabled = used>=10;
+      $("mintBtn").textContent = used>=10 ? "本钱包额度已用完（10/10）" : "连接后验证 Agent ID 铸造";
+      $("status").innerHTML = "已连接 " + account.slice(0,6) + "…" + account.slice(-4) +
+        " ｜ 本钱包已铸造 <b>" + used + "</b> / 10 份";
     }
-  }catch(e){ /* 静默失败，下次轮询再试 */ }
+  }catch(e){}
+  loadRank();
 }
 
-function updateCost(){ $("cost").textContent = (shares*PRICE_PER_SHARE).toFixed(3).replace(/0+$/,"").replace(/\.$/,".0") + " BNB"; $("shares").textContent = shares; }
-$("minus").onclick = ()=>{ shares = Math.max(1, shares-1); updateCost(); };
-$("plus").onclick  = ()=>{ shares = Math.min(10, shares+1); updateCost(); };
-updateCost();
+async function loadRank(){
+  try{
+    const latest = await rpc("eth_blockNumber",[]);
+    const logs = await rpc("eth_getLogs",[{address:LP, fromBlock:"0x"+DEPLOY_BLOCK.toString(16), toBlock:latest, topics:[ASSET_MINTED_TOPIC]}]);
+    const byAddr = {};
+    for (const lg of logs){
+      const minter = "0x" + lg.topics[2].slice(26);
+      const sh = parseInt(lg.data.slice(2,66),16);
+      byAddr[minter] = (byAddr[minter]||0) + sh;
+    }
+    const rows = Object.entries(byAddr).sort((a,b)=>b[1]-a[1]);
+    $("stHolders").textContent = fmt(rows.length);
+    if (!rows.length){
+      $("rankBox").innerHTML = '<div class="rank-empty">暂无铸造记录 —— 第一个上榜的，可能就是你。</div>';
+      return;
+    }
+    let html = "<table><tr><th>排名</th><th>地址</th><th>铸造份数</th></tr>";
+    rows.slice(0,10).forEach((r,i)=>{ html += "<tr><td>" + (i+1) + "</td><td><code>" + r[0].slice(0,8) + "…" + r[0].slice(-6) + "</code></td><td>" + fmt(r[1]) + " 份</td></tr>"; });
+    $("rankBox").innerHTML = html + "</table>";
+  }catch(e){
+    $("rankBox").innerHTML = '<div class="rank-empty">排行榜加载失败，稍后自动重试。</div>';
+  }
+}
 
-document.querySelectorAll(".copy").forEach(b=>b.onclick=()=>{
-  navigator.clipboard.writeText(b.dataset.c); b.textContent="已复制"; setTimeout(()=>b.textContent="复制",1200);
-});
-
-$("connectBtn").onclick = async ()=>{
-  if (!window.ethereum){ setStatus("没检测到钱包。请用币安 Web3 钱包或 MetaMask 的内置浏览器打开本页。"); return; }
+async function connect(){
+  if (!window.ethereum){ $("status").textContent = "没检测到钱包。请用币安 Web3 钱包或 MetaMask 的内置浏览器打开本页。"; return; }
   try{
     const accs = await window.ethereum.request({method:"eth_requestAccounts"});
     account = accs[0];
     try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}); }catch(e){}
-    $("connectBtn").textContent = account.slice(0,6)+"…"+account.slice(-4);
+    const label = account.slice(0,6)+"…"+account.slice(-4);
+    $("connectBtn").textContent = label;
+    $("navConnect").textContent = label;
     $("mintBtn").disabled = false;
     refresh();
-  }catch(e){ setStatus("连接被取消。"); }
-};
+  }catch(e){ $("status").textContent = "连接被取消。"; }
+}
+$("connectBtn").onclick = connect;
+$("navConnect").onclick = connect;
 
 $("mintBtn").onclick = async ()=>{
-  if (!window.ethereum){ setStatus("请先连接钱包。"); return; }
-  if (!account){ $("connectBtn").click(); return; }
+  if (!window.ethereum){ $("status").textContent = "请先连接钱包。"; return; }
+  if (!account){ connect(); return; }
+  const st = $("status");
   try{
-    setStatus("正在向合约询价…");
+    st.textContent = "正在向合约询价…";
     const q = await rpc("eth_call",[{to:LP,data:"0xed1bd76c"+word(shares)},"latest"]);
     const cost = BigInt(q);
-    const maxCost = cost + cost/50n; // +2% 冗余，超额部分同笔自动退回
+    const maxCost = cost + cost/50n;
     const minTokens = BigInt(shares) * 50000000n * 10n**18n * 99n / 100n;
-    const data = "0x547c1db9" + word(shares) + padAddr("0x0000000000000000000000000000000000000000")
+    const data = "0x547c1db9" + word(shares) + padAddr(referrer)
                + word(maxCost) + padAddr(TOKEN) + word(minTokens);
-    setStatus("请在钱包里确认交易…");
+    st.textContent = "请在钱包里确认交易…";
     const tx = await window.ethereum.request({method:"eth_sendTransaction",
       params:[{from:account, to:LP, value:"0x"+maxCost.toString(16), data}]});
-    setStatus("已提交，等待上链：<a target='_blank' href='https://bscscan.com/tx/" + tx + "'>" + tx.slice(0,18) + "…</a>");
+    st.innerHTML = "已提交，等待上链：<a target='_blank' href='https://bscscan.com/tx/" + tx + "'>" + tx.slice(0,18) + "…</a>";
     setTimeout(refresh, 6000);
   }catch(e){
     const msg = (e && e.message) ? e.message : String(e);
-    if (/AgentId|agent/i.test(msg)) setStatus("打新失败：这个钱包没有币安 Agent ID，合约已拒绝。");
-    else setStatus("打新失败：" + msg.slice(0,160));
+    if (/AgentId|agent/i.test(msg)) st.textContent = "铸造失败：这个钱包没有币安 Agent ID，合约已拒绝。";
+    else st.textContent = "铸造失败：" + msg.slice(0,160);
   }
 };
 
+$("copyInvite").onclick = e=>{
+  e.preventDefault();
+  const link = location.origin + location.pathname + (account ? ("?ref=" + account) : "");
+  navigator.clipboard.writeText(link);
+  e.target.textContent = "已复制，去分享吧";
+  setTimeout(()=>e.target.textContent="复制邀请链接", 1500);
+};
+document.querySelectorAll(".copy").forEach(b=>b.onclick=()=>{
+  navigator.clipboard.writeText(b.dataset.c); b.textContent="已复制"; setTimeout(()=>b.textContent="复制",1200);
+});
+
+setShares(10);
 refresh();
 setInterval(refresh, 30000);
 </script>
