@@ -163,7 +163,7 @@
       <button class="btn ghost" id="connectBtn">连接钱包</button>
       <button class="btn" id="mintBtn" disabled>连接后验证 Agent ID 铸造</button>
     </div>
-    <p class="status" id="status">连接持有币安 Agent ID 的 Binance Agentic Wallet 即可铸造；没有 Agent ID 的钱包会被合约直接拒绝。</p>
+    <p class="status" id="status">点“连接钱包”即可：普通浏览器会弹出二维码/跳转，用币安钱包扫码连接；在钱包 App 内打开则直接连接。铸造需持有币安 Agent ID，没有 ID 的钱包会被合约直接拒绝。</p>
     <p class="quota">每个 Agent ID 基础额度 <b>10 份</b> ｜ <a href="#" id="copyInvite">复制邀请链接</a><span id="refNote"></span></p>
   </div>
 
@@ -234,7 +234,9 @@
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.21.0/dist/index.umd.min.js"></script>
 <script>
+const WC_PROJECT_ID = "41c01d7c624d4104f801a71ee73e086f";
 const LP = "0x7ee990aCf517d02a9cE17a06E6CdCB6A2d6e3283";
 const TOKEN = "0x82ed3caf232a1832a3b8de0b40e58a9da27b49eb";
 const RPCS = ["https://bsc-dataseed1.binance.org","https://bsc-dataseed.binance.org"];
@@ -335,25 +337,51 @@ async function loadRank(){
   }
 }
 
+let wcProvider = null, activeProvider = null;
+function provider(){ return activeProvider || window.ethereum || null; }
+async function getWC(){
+  if (wcProvider) return wcProvider;
+  wcProvider = await window.EthereumProvider.init({
+    projectId: WC_PROJECT_ID, chains: [56], showQrModal: true,
+    qrModalOptions: { themeMode: "dark" },
+    metadata: { name: "牛币 NIUBI", description: "牛币 · Agent ID 铸造",
+      url: location.origin + location.pathname,
+      icons: [location.origin + location.pathname.replace(/[^/]*$/, "") + "mascot.webp"] }
+  });
+  wcProvider.on("accountsChanged", a => { if (a && a[0]){ account = a[0]; onConnected(); } });
+  wcProvider.on("disconnect", () => { account = null; activeProvider = null; });
+  return wcProvider;
+}
+function onConnected(){
+  const label = account.slice(0,6)+"…"+account.slice(-4);
+  $("connectBtn").textContent = label;
+  $("navConnect").textContent = label;
+  $("mintBtn").disabled = false;
+  refresh();
+}
 async function connect(){
-  if (!window.ethereum){ $("status").textContent = "没检测到钱包。请用币安 Web3 钱包或 MetaMask 的内置浏览器打开本页。"; return; }
   try{
-    const accs = await window.ethereum.request({method:"eth_requestAccounts"});
-    account = accs[0];
-    try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}); }catch(e){}
-    const label = account.slice(0,6)+"…"+account.slice(-4);
-    $("connectBtn").textContent = label;
-    $("navConnect").textContent = label;
-    $("mintBtn").disabled = false;
-    refresh();
-  }catch(e){ $("status").textContent = "连接被取消。"; }
+    if (window.ethereum){
+      const accs = await window.ethereum.request({method:"eth_requestAccounts"});
+      account = accs[0]; activeProvider = window.ethereum;
+      try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}); }catch(e){}
+      onConnected();
+      return;
+    }
+    $("status").textContent = "正在打开 WalletConnect，请用币安钱包扫码或在弹出的列表里选择币安钱包…";
+    const p = await getWC();
+    await p.connect();
+    account = p.accounts[0]; activeProvider = p;
+    onConnected();
+  }catch(e){ $("status").textContent = "连接被取消或失败，请重试。"; }
 }
 $("connectBtn").onclick = connect;
 $("navConnect").onclick = connect;
 
 $("mintBtn").onclick = async ()=>{
-  if (!window.ethereum){ $("status").textContent = "请先连接钱包。"; return; }
   if (!account){ connect(); return; }
+  const prov = provider();
+  if (!prov){ $("status").textContent = "请先连接钱包。"; return; }
   const st = $("status");
   try{
     st.textContent = "正在向合约询价…";
@@ -364,7 +392,7 @@ $("mintBtn").onclick = async ()=>{
     const data = "0x547c1db9" + word(shares) + padAddr(referrer)
                + word(maxCost) + padAddr(TOKEN) + word(minTokens);
     st.textContent = "请在钱包里确认交易…";
-    const tx = await window.ethereum.request({method:"eth_sendTransaction",
+    const tx = await prov.request({method:"eth_sendTransaction",
       params:[{from:account, to:LP, value:"0x"+maxCost.toString(16), data}]});
     st.innerHTML = "已提交，等待上链：<a target='_blank' href='https://bscscan.com/tx/" + tx + "'>" + tx.slice(0,18) + "…</a>";
     setTimeout(refresh, 6000);
